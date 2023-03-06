@@ -119,7 +119,7 @@ func NewRoller(filename string, maxSize int64, opt *Options) (*Roller, error) {
 // `/var/log/foo/server.log`, a backup created at 6:30pm on Nov 11 2016 would
 // use the filename `/var/log/foo/server-2016-11-04T18-30-00.000.log`
 //
-// Cleaning Up Old Log Files
+// # Cleaning Up Old Log Files
 //
 // Whenever a new logfile gets created, old log files may be deleted. The most
 // recent files according to the encoded timestamp will be retained, up to a
@@ -246,13 +246,13 @@ func (r *Roller) rotate() error {
 // openNew opens a new log file for writing, moving any old log file out of the
 // way.  This methods assumes the file has already been closed.
 func (r *Roller) openNew() error {
-	err := os.MkdirAll(r.dir(), 0755)
+	err := os.MkdirAll(r.dir(), 0o755)
 	if err != nil {
 		return fmt.Errorf("can't make directories for new logfile: %w", err)
 	}
 
 	name := r.newFilename()
-	mode := os.FileMode(0600)
+	mode := os.FileMode(0o644)
 	info, err := osStat(name)
 	if err == nil {
 		// Copy the mode off the old logfile.
@@ -317,7 +317,7 @@ func (r *Roller) openExistingOrNew(writeLen int64) error {
 		return r.rotate()
 	}
 
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		// if we fail to open the old log file for some reason, just ignore
 		// it and open a new log file.
